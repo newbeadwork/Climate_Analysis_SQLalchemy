@@ -39,6 +39,26 @@ def home():
      )
 
 
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    # Creating session 
+    session = Session(engine)
+
+    """Return precipitation by date"""
+    # Quering data on date and precipitation
+    results = session.query(Measurement.date, Measurement.prcp).all()
+
+    session.close()
+
+    # Creating a dictionary from the precipitation data 
+    daily_precipitation = []
+    for date, prcp in results:
+        prcp_dict = {}
+        prcp_dict["date"] = date
+        prcp_dict["precipitation"] = prcp
+        daily_precipitation.append(prcp_dict)
+
+    return jsonify(daily_precipitation)
 
 
 if __name__ == '__main__':
