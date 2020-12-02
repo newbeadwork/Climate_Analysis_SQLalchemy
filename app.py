@@ -60,6 +60,23 @@ def precipitation():
 
     return jsonify(daily_precipitation)
 
+@app.route("/api/v1.0/stations")
+def stations():
+    # Creating session 
+    session = Session(engine)
+
+    """List of stations"""
+    # Quering data on date and precipitation
+    results = session.query(Station.name).all()
+
+    session.close()
+
+    # Creating a dictionary from the precipitation data 
+    list_stations = []
+    for name in results:
+        list_stations.append(name)
+
+    return jsonify(list_stations)
 
 if __name__ == '__main__':
     app.run(debug=True)
