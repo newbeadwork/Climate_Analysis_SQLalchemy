@@ -66,17 +66,46 @@ def stations():
     session = Session(engine)
 
     """List of stations"""
-    # Quering data on date and precipitation
+    
+    # Quering data on stations
     results = session.query(Station.name).all()
 
     session.close()
 
-    # Creating a dictionary from the precipitation data 
+    # Creating a list from stations data 
     list_stations = []
     for name in results:
         list_stations.append(name)
 
     return jsonify(list_stations)
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    # Creating session 
+    session = Session(engine)
+
+    """Temperature observations for the most active station for the last year"""
+    # Quering data on most active station
+    
+    chosen_data = [Measurement.station, 
+       func.count(Measurement.id)]
+    active_station = session.query(*chosen_data).\
+        group_by(Measurement.station).\
+        order_by(func.count(Measurement.id).desc()).first()
+    
+    
+    results = session.query(Measurement.date, Measurement.tobs).\
+        filter(Measurement.station == active_station[0]).\
+        filter(Measurement.date > '2016-08-23').all()
+
+    session.close()
+
+    # Creating a list of temperature observations for the last year of the data 
+    list_temperatures = []
+    for tobs in results:
+        list_temperatures.append(tobs)
+
+    return jsonify(list_temperatures)
 
 if __name__ == '__main__':
     app.run(debug=True)
