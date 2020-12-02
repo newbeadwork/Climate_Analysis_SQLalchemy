@@ -107,5 +107,28 @@ def tobs():
 
     return jsonify(list_temperatures)
 
+@app.route("/api/v1.0/<start>")
+def temperatures(start):
+    #Creating session 
+    session = Session(engine)
+
+    """Return a list of the minimum temperature, the average temperature, and the max temperature for a given start date"""
+    temperature_data = [func.min(Measurement.tobs),
+                        func.avg(Measurement.tobs),
+                        func.max(Measurement.tobs)]
+    results = session.query(*temperature_data).\
+        filter(Measurement.date >= start).all()
+
+    session.close()
+
+    # Creating a list of the minimum temperature, the average temperature, and the max temperature for a given start date
+    list_temperatures_1 = []
+    for min, avg, max in results:
+        list_temperatures_1.append(min)
+        list_temperatures_1.append(avg)
+        list_temperatures_1.append(max)
+
+    return jsonify(list_temperatures_1)
+    
 if __name__ == '__main__':
     app.run(debug=True)
