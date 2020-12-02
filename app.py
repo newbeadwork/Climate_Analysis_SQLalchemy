@@ -1,16 +1,13 @@
 import numpy as np
-
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
-
 from flask import Flask, jsonify
 
 
 
 # Creating 'engine'
-
 engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
 # #Creating Base variable 
@@ -38,7 +35,7 @@ def home():
         f"/api/v1.0/<start>/<end>"
      )
 
-
+#Route for the precipitation data
 @app.route("/api/v1.0/precipitation")
 def precipitation():
     # Creating session 
@@ -60,6 +57,7 @@ def precipitation():
 
     return jsonify(daily_precipitation)
 
+#Route for stations data
 @app.route("/api/v1.0/stations")
 def stations():
     # Creating session 
@@ -79,6 +77,7 @@ def stations():
 
     return jsonify(list_stations)
 
+#Route for temperature data
 @app.route("/api/v1.0/tobs")
 def tobs():
     # Creating session 
@@ -93,9 +92,9 @@ def tobs():
         group_by(Measurement.station).\
         order_by(func.count(Measurement.id).desc()).first()
     
-    
+    #Quering temperature data on the most active station
     results = session.query(Measurement.date, Measurement.tobs).\
-        filter(Measurement.station == active_station[0]).\
+        filter(Measurement.station == active_station[0]).\ 
         filter(Measurement.date > '2016-08-23').all()
 
     session.close()
@@ -107,8 +106,9 @@ def tobs():
 
     return jsonify(list_temperatures)
 
+#Route for a chosen start date data
 @app.route("/api/v1.0/<start>")
-def temperatures(start):
+def temperatures_start(start):
     #Creating session 
     session = Session(engine)
 
@@ -122,13 +122,37 @@ def temperatures(start):
     session.close()
 
     # Creating a list of the minimum temperature, the average temperature, and the max temperature for a given start date
-    list_temperatures_1 = []
+    list_temperatures_start = []
     for min, avg, max in results:
-        list_temperatures_1.append(min)
-        list_temperatures_1.append(avg)
-        list_temperatures_1.append(max)
+        list_temperatures_start.append(min)
+        list_temperatures_start.append(avg)
+        list_temperatures_start.append(max)
 
-    return jsonify(list_temperatures_1)
-    
+    return jsonify(list_temperatures_start)
+
+#Route for a chosen start-end range
+@app.route("/api/v1.0/<start>/<end>")
+def temperatures_end(start, end):
+    #Creating session 
+    session = Session(engine)
+
+    """Return a list of the minimum temperature, the average temperature, and the max temperature for a given start-end range"""
+    temperature_data = [func.min(Measurement.tobs),
+                        func.avg(Measurement.tobs),
+                        func.max(Measurement.tobs)]
+    results = session.query(*temperature_data).\
+        filter(Measurement.date >= start, Measurement.date <= end).all()
+
+    session.close()
+
+    # Creating a list of the minimum temperature, the average temperature, and the max temperature for a given start-end range
+    list_temperatures_end = []
+    for min, avg, max in results:
+        list_temperatures_end.append(min)
+        list_temperatures_end.append(avg)
+        list_temperatures_end.append(max)
+
+    return jsonify(list_temperatures_end)
+
 if __name__ == '__main__':
     app.run(debug=True)
