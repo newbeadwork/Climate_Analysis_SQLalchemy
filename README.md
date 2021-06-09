@@ -14,6 +14,8 @@ The project includes:
 
 - Creating Flask API with JSON converted values;
 
+![flask.png](Images/flask.png)
+
 - Calculation of the average temperature in June and in December at all stations across all available years in the dataset; 
 
 - Using the t-test to determine whether the difference in the means, if any, is statistically significant;
