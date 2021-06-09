@@ -94,7 +94,7 @@ def tobs():
     
     #Quering temperature data on the most active station
     results = session.query(Measurement.date, Measurement.tobs).\
-        filter(Measurement.station == active_station[0]).\ 
+        filter(Measurement.station == active_station[0]).\
         filter(Measurement.date > '2016-08-23').all()
 
     session.close()
